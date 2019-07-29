@@ -187,13 +187,7 @@ async function facets(targetEl, plots) {
       x,
       y,
       classification,
-      hashedURI: hash64(item.uri),
-      // source: item.source || 'uknown',
-      // filename: item.filename,
-      // filenameLabel: item.filenameLabel,
-      // searchQuery: item.query,
-      // elapsedSeconds: item.elapsedSeconds,
-      // ...labels
+      hashedURI: hash64(item.uri)
     };
   });
   // const classNames = _.uniq(_.flatMap(items, item => item.prediction.map(p => p.className)));
@@ -218,19 +212,15 @@ async function facets(targetEl, plots) {
   facetsDiveEl.infoRenderer = facetsInfoRenderer.bind(null, items);
   if (didCreate) {
     facetsDiveEl.hideInfoCard = false;
-    // facetsDiveEl.verticalFacet = textLabelForClassName(classNames[0]);
-    // facetsDiveEl.verticalBuckets = 4;
-    // facetsDiveEl.horizontalFacet = 'searchQuery';
-    // facetsDiveEl.tweenDuration = 0;
-    // facetsDiveEl.fadeDuration = 0;
+    facetsDiveEl.horizontalPosition = 'x';
+    facetsDiveEl.verticalPosition = 'y';
+    facetsDiveEl.colorBy = 'classification';
   }
   
   // sprite sheet
   // see https://github.com/PAIR-code/facets/tree/master/facets_dive#providing-sprites-for-dive-to-render
   // 64x64 is the assumption
   const {canvas, uri} = await createFacetsAtlas(items, 64, 64);
-  // console.log('uri', uri);
-  // document.body.appendChild(canvas);
   facetsDiveEl.atlasUrl = uri;
   facetsDiveEl.spriteImageWidth = 64;
   facetsDiveEl.spriteImageHeight = 64;
