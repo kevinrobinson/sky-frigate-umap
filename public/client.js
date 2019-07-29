@@ -39,21 +39,24 @@ async function newClipartCanvas() {
 
 async function main() {
   const model = await window.mobilenet.load();
-  const items = await Promise.all(_.compact(_.range(0, 40).map(async i => {
+  const items = _.compact(await Promise.all(_.compact(_.range(0, 50).map(async i => {
     try {
       const {canvas, imageKey} = await newClipartCanvas();
       const uri = canvas.toDataURL()
       // sessionStorage.setItem('imageKeys', (sessionStorage.getItem('imageKeys') || []).concat(imageKey));
       // sessionStorage.setItem(`image:${imageKey}`, uri);
       const embedding = (await model.infer(canvas)).arraySync()[0];
-      return {i, uri, embedding};
+      const prediction = await model.classify(canvas);
+      return {i, uri, embedding, prediction};
     } catch(err) {
+      console.error('err', err);
       return null;
     }
-  })));
+  }))));
   window.items = items;
   // sessionStorage.setItem('items', JSON.stringify(items));
   console.log('items', JSON.stringify(items));
+  console.log('items.length', items.length);
   
   
   const embeddings = _.compact(items).map(item => item.embedding);
@@ -67,14 +70,23 @@ async function main() {
   // window.xys = xys;
   
   // canvas
+  // const [width, height] = [600, 600];
+  // const canvas = document.createElement('canvas');
+  // const ctx = canvas.getContext('2d');
+  // canvas.width = width;
+  // canvas.height = height;
+  // canvas.style.width = width + "px";
+  // canvas.style.height = height + "px";
+  // document.body.appendChild(canvas);
+  
+  // html
   const [width, height] = [600, 600];
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = width;
-  canvas.height = height;
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
-  document.body.appendChild(canvas);
+  const div = document.createElement('div');
+  div.style.position = 'relative';
+  div.style.background = '#f8f8f8f';
+  div.style.width = width + "px";
+  div.style.height = height + "px";
+  document.body.appendChild(div);
   
   // range
   const xRange = [
@@ -92,8 +104,6 @@ async function main() {
   
   // plots
   xys.forEach(async (pair, i) => {
-    const el = document.createElement('div');
-    
     const [xp, yp] = [
       (pair[0] - xRange[0])/xSpan,
       (pair[1] - yRange[0])/ySpan
@@ -107,19 +117,33 @@ async function main() {
     // ctx.drawImage(img, 0, 0);
     
     const item = (items[i]);
-    const uri = item.uri;
+    const {prediction, uri} = item;
     if (uri) {
-      await drawImage(uri, ctx, x, y, 32, 32);
+      // await drawImage(uri, ctx, x, y, 32, 32);
+      addImage(uri, div, x, y, 32, 32, prediction);
     } else {
       // const r = Math.round(255 * (i / xys.length));
-      const r = 255;
-      ctx.fillStyle = rgbaify([r, 0, 0, 1]);
-      ctx.fillRect(x, y, 4, 4);
+      // const r = 255;
+      // ctx.fillStyle = rgbaify([r, 0, 0, 1]);
+      // ctx.fillRect(x, y, 4, 4);
     }
   });
 }
 
-async function drawImage(uri, ctx, x, y, width, height) {
+function addImage(uri, el, x, y, width, height) {
+  const img = document.createElement('img');
+  el.appendChild(img);
+  img.style.position = 'absolute';
+  img.style.left = x + 'px';
+  img.style.top = y + 'px';
+  img.style.width = width;
+  img.style.height = height;
+  img.width = width;
+  img.height = height;
+  img.src = uri;
+}
+
+async function drawImage(uri, ctx, x, y, width, height, prediction) {
   const img = new Image();
   return new Promise((resolve, reject) => {
     img.onload = async function() {
@@ -127,6 +151,7 @@ async function drawImage(uri, ctx, x, y, width, height) {
       resolve();
     }
     img.src = uri;
+    img.addEventListener('click', () => alert(JSON.stringify(prediction, null, 2)));
   });
 }
 
