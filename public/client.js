@@ -52,7 +52,7 @@ async function main() {
       console.error('err', err);
       return null;
     }
-  }))));
+  })))).map((item, index) => { return {...item, i: index}; }); // re-index
   window.items = items;
   // sessionStorage.setItem('items', JSON.stringify(items));
   console.log('items', JSON.stringify(items));
@@ -103,7 +103,7 @@ async function main() {
   console.log('yRange', yRange, ySpan);
   
   // plots
-  const plots = xys.map(async (pair, i) => {
+  const plots =_.compact(await Promise.all(xys.map(async (pair, i) => {
     const [xp, yp] = [
       (pair[0] - xRange[0])/xSpan,
       (pair[1] - yRange[0])/ySpan
@@ -114,15 +114,24 @@ async function main() {
     ];
     
     const item = (items[i]);
+    if (!item) return null;
+    
     return {x, y, i, item};
-  });
+  })));
+  console.log('plots.length', plots.length);
   
   
+  // plain images
   plots.forEach(plot => {
     const {x, y, item} = plot;
     const {uri, prediction} = item;
     addImage(uri, div, x, y, 32, 32, prediction);
   });
+  
+  
+  // facets
+  const facetsEl = document.createElement('div');
+  document.body.appendChild(facetsEl);
   facets(div, plots);
 }
 
@@ -184,17 +193,20 @@ async function facets(targetEl, plots) {
       // filenameLabel: item.filenameLabel,
       // searchQuery: item.query,
       // elapsedSeconds: item.elapsedSeconds,
-      ...labels
+      // ...labels
     };
   });
   // const classNames = _.uniq(_.flatMap(items, item => item.prediction.map(p => p.className)));
+  const items = plots.map(plot => plot.item);
 
   // create or grab the polymer el
   var facetsDiveEl = targetEl.querySelector('facets-dive');
   var didCreate = false;
   if (!facetsDiveEl) {
     const el = document.createElement('div');
-    el.innerHTML = '<facets-dive width="800" height="600" />';
+    el.innerHTML = '<facets-dive width="1200" height="800" />';
+    el.style.width = '1200px';
+    el.style.height = '800px';
     targetEl.appendChild(el);
     facetsDiveEl = targetEl.querySelector('facets-dive');
     didCreate = true;
