@@ -72,15 +72,32 @@ async function main() {
   canvas.style.height = height + "px";
   document.body.appendChild(canvas);
   
+  // range
+  const xRange = [
+    _.min(xys.map(xy => xy[0])),
+    _.max(xys.map(xy => xy[0]))
+  ];
+  console.log('xRange', xRange);
+  const yRange = [
+    _.min(xys.map(xy => xy[1])),
+    _.max(xys.map(xy => xy[1]))
+  ];
+  console.log('yRange', yRange);
+  
   // plots
   xys.forEach((pair, i) => {
     const el = document.createElement('div');
+    
+    const [xp, yp] = [
+      (pair[0] - xRange[0]) * (xRange[1] - xRange[0]),
+      (pair[1] - yRange[0]) * (yRange[1] - yRange[0])
+    ];
     const [x, y] = [
-      width * pair[0] - width/2,
-      height * pair[1] - height/2
+      width * xp,
+      height * yp
     ];
     const percent = Math.round(255 * i / xys.length);
-    console.log('coord', pair.map(p => p.toFixed(3)).join(','), x, y, i, percent)
+    console.log('coord', pair[0], pair[1], xp, yp, '/', x, y, i, percent);
     // ctx.drawImage(img, 0, 0);
     ctx.fillStyle = 'rgb(' + Math.round(percent*255) + ', 0, 0);';
     ctx.fillRect(x, y, 10, 10);
