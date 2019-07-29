@@ -38,8 +38,11 @@ async function newClipartCanvas() {
 
 
 async function main() {
+  const n = (window.location.search.indexOf('?n=') === 0)
+    ? parseInt(window.location.search.slice(3), 10)
+    : 50;
   const model = await window.mobilenet.load();
-  const items = _.compact(await Promise.all(_.compact(_.range(0, 50).map(async i => {
+  const items = _.compact(await Promise.all(_.compact(_.range(0, n).map(async i => {
     try {
       const {canvas, imageKey} = await newClipartCanvas();
       const uri = canvas.toDataURL()
@@ -59,8 +62,14 @@ async function main() {
   console.log('items.length', items.length);
   
   
-  const embeddings = _.compact(items).map(item => item.embedding);
+  const embeddings = items.map(item => item.embedding);
   const umap = new (window.UMAP)();
+  
+  const SUPERVISED = true;
+  const labels = items.map(item => item.prediction[0].className);
+  if (SUPERVISED) {
+    umap.setSupervisedProjection(labels);
+  }
   const xys = umap.fit(embeddings);
   window.xys = xys;
   sessionStorage.setItem('xys', JSON.stringify(xys));
