@@ -361,15 +361,21 @@ function notify(json) {
 main();
 
 
-asyncfunction project(projectionEl, embeddings) {
+function project(projectionEl, tensors) {
   projectionEl.style.width = '800px';
   projectionEl.style.height = '800px';
   
   console.log('umap...');
   const umap = new (window.UMAP)();
-  umap.fitAsync(embeddings, epochNumber => {
-    console.log('fitting...', epochNumber);
-  })).then(umapEmbeddings => {
-    console.log('umapEmbeddings
-  })
+  const mnetEmbeddings = tensors.map(tensor => tensor.arraySync()[0]);
+  
+  // umap.fitAsync(mnetEmbeddings, epochNumber => {
+  //   console.log('fitting...', epochNumber);
+  // }).then(umapEmbeddings => {
+  //   console.log('umapEmbeddings', umapEmbeddings);
+  //   window.umapEmbeddings = umapEmbeddings;
+  // })
+  const umapEmbeddings = umap.fit(mnetEmbeddings);
+  console.log('umapEmbeddings', umapEmbeddings);
+  window.umapEmbeddings = umapEmbeddings;
 }
