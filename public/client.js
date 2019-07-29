@@ -368,6 +368,7 @@ function project(projectionEl, tensors) {
   console.log('umap...');
   const umap = new (window.UMAP)();
   const mnetEmbeddings = tensors.map(tensor => tensor.arraySync()[0]);
+  window.mnetEmbeddings = mnetEmbeddings;
   
   // umap.fitAsync(mnetEmbeddings, epochNumber => {
   //   console.log('fitting...', epochNumber);
