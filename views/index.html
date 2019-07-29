@@ -13,15 +13,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2.5/dist/tf.min.js"> </script>
     <!-- Load the MobileNet model. -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.0.2/dist/mobilenet.min.js"> </script>
+    
+    
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/umap-js@1.2.2/lib/umap-js.min.js"></script>
+    
+    
+    <!-- polymer, for facets, see https://github.com/PAIR-code/what-if-tool/issues/7#issuecomment-514660444 -->
+    <script>
+      window.addEventListener('WebComponentsReady', function() {
+        var link = document.createElement('link');
+        link.rel = "import";
+        link.href = "./facets-jupyter.html";
+        link.onload = function() {
+          console.log('> facets tag loaded');
+        };
+        document.head.appendChild(link);
+      });
+    </script>
+    <script src="./webcomponents-lite.js"></script>
     
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/style.css">
   </head>  
   <body>
     <h1>sky-frigate</h1>
-    <h2>reduce mobilenet embeddings with umap</h2>
+    <p>reduce mobilenet embeddings with umap</p>
   
     <!-- include the Glitch button to show what the webpage is about and
           to make it easier for folks to view source and remix -->
