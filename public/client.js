@@ -63,7 +63,7 @@ async function main() {
     if (next.wat === 'found') {
       foundClassNames[next.params.className] = true;
       console.log('> found' + next.params.className);
-      pre
+      project(projectionEl, embeddings);
       notify({
         i,
         p,
@@ -361,13 +361,15 @@ function notify(json) {
 main();
 
 
-var embeddings = [];
-function project(projectionEl, embedding) {
+asyncfunction project(projectionEl, embeddings) {
   projectionEl.style.width = '800px';
   projectionEl.style.height = '800px';
   
-  embeddings.push(embedding);
-  if (embeddings.length > 10) {
-    console.log('ok');
-  }
+  console.log('umap...');
+  const umap = new (window.UMAP)();
+  umap.fitAsync(embeddings, epochNumber => {
+    console.log('fitting...', epochNumber);
+  })).then(umapEmbeddings => {
+    console.log('umapEmbeddings
+  })
 }
