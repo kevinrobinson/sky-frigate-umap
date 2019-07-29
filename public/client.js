@@ -12,11 +12,15 @@ async function main() {
   var aborted = false;
   var i = 0;
   var foundClassNames = {};
+  var embeddings = [];
   
   function newline() {
     const br = document.createElement('br');
     document.querySelector('#out').appendChild(br);
   }
+  
+  const projectionEl = document.createElement('div');
+  document.querySelector('#out').appendChild(projectionEl);
   
   // loop
   async function iteration(parent) {
@@ -27,6 +31,8 @@ async function main() {
       // const mutant = rectMutation(parent);
       const mutant = pixelMutation(parent);
       const predictions = await model.classify(mutant);
+      const embedding = await model.infer(mutant);
+      embeddings.push(embedding);
       
       // highest not yet found
       const prediction = predictions.filter(prediction => !foundClassNames[prediction.className])[0];
@@ -57,6 +63,7 @@ async function main() {
     if (next.wat === 'found') {
       foundClassNames[next.params.className] = true;
       console.log('> found' + next.params.className);
+      pre
       notify({
         i,
         p,
@@ -352,3 +359,15 @@ function notify(json) {
 }
 
 main();
+
+
+var embeddings = [];
+function project(projectionEl, embedding) {
+  projectionEl.style.width = '800px';
+  projectionEl.style.height = '800px';
+  
+  embeddings.push(embedding);
+  if (embeddings.length > 10) {
+    console.log('ok');
+  }
+}
