@@ -109,8 +109,9 @@ async function start(inputs) {
   // document.querySelector('#out').innerHTML = 'working, check the console...';
   
   // load
-  console.log('Loading model...');
-  const model = await window.mobilenet.load();
+  const version = 2;
+  console.log(`Loading model version ${version}...`);
+  const model = await window.mobilenet.load({version});
   
   
   // predict
