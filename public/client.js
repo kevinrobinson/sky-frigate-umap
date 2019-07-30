@@ -85,27 +85,33 @@ async function main() {
   document.querySelector('#file-selector').addEventListener('change', async function(event) {
     const files = await readInputFilesAsDataURL(event.target.files);
     console.log('  loaded files:', files.length);
-    const items = await Promise.all(files.map(async file => {
+    const inputs = await Promise.all(files.map(async file => {
       const {uri} = file;
-      const img = loadImageFromUri(uri);
+      const img = await loadImageFromUri(uri);
       return {uri, el: img};
     }));
-    await start(items);
+    await start(inputs);
   });
   
   document.querySelector('#fetch-random').addEventListener('click', async function(event) {
-    const items = await fetchItemsForImages();
-    await start(items);
+    const inputs = await fetchItemsForImages();
+    await start(inputs);
   });
 }
 
-async function start(uris) {
+async function start(inputs) {
+  // document.querySelector('#out').innerHTML = 'working, check the console...';
+  
+  // load
   const model = await window.mobilenet.load();
-  const items = await Promise.all(_.compact(uris.map(async (uri, i) => {
+  
+  
+  // predict
+  const items = await Promise.all(_.compact(inputs.map(async (input, i) => {
     try {
-      const img = await loadImageFromUri(uri);
-      const embedding = (await model.infer(img)).arraySync()[0];
-      const prediction = await model.classify(img);
+      const {el, uri} = input;
+      const embedding = (await model.infer(el)).arraySync()[0];
+      const prediction = await model.classify(el);
       return {i, uri, embedding, prediction};
     }
     catch (err) {
@@ -118,12 +124,16 @@ async function start(uris) {
   // console.log('items', JSON.stringify(items));
   console.log('items.length', items.length);
   
+  
+  // project
   const xys = await projectWithUmap(items);
   window.xys = xys;
   // sessionStorage.setItem('xys', JSON.stringify(xys));
   console.log('xys', xys);
   console.log('xys', xys.length);
   
+  
+  // render
   // canvas
   // const [width, height] = [600, 600];
   // const canvas = document.createElement('canvas');
