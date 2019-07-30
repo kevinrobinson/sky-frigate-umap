@@ -46,6 +46,10 @@ async function loadImageFromUri(uri) {
     img.onerror = function() {
       reject();
     }
+    img.width = 224;
+    img.height = 224;
+    img.style.width = '224px';
+    img.style.height = '224px';
     img.src = uri;
   });
 }
@@ -83,8 +87,9 @@ async function projectWithUmap(items) {
 
 async function main() {
   document.querySelector('#file-selector').addEventListener('change', async function(event) {
+    console.log('Reading files...');
     const files = await readInputFilesAsDataURL(event.target.files);
-    console.log('  loaded files:', files.length);
+    console.log('Loaded files:', files.length);
     const inputs = await Promise.all(files.map(async file => {
       const {uri} = file;
       const img = await loadImageFromUri(uri);
@@ -94,6 +99,7 @@ async function main() {
   });
   
   document.querySelector('#fetch-random').addEventListener('click', async function(event) {
+    console.log('Fetching images...');
     const inputs = await fetchItemsForImages();
     await start(inputs);
   });
@@ -103,10 +109,12 @@ async function start(inputs) {
   // document.querySelector('#out').innerHTML = 'working, check the console...';
   
   // load
+  console.log('Loading model...');
   const model = await window.mobilenet.load();
   
   
   // predict
+  console.log('Predicting...');
   const items = await Promise.all(_.compact(inputs.map(async (input, i) => {
     try {
       const {el, uri} = input;
@@ -126,6 +134,7 @@ async function start(inputs) {
   
   
   // project
+  console.log('Projecting with UMAP...');
   const xys = await projectWithUmap(items);
   window.xys = xys;
   // sessionStorage.setItem('xys', JSON.stringify(xys));
@@ -134,25 +143,9 @@ async function start(inputs) {
   
   
   // render
-  // canvas
-  // const [width, height] = [600, 600];
-  // const canvas = document.createElement('canvas');
-  // const ctx = canvas.getContext('2d');
-  // canvas.width = width;
-  // canvas.height = height;
-  // canvas.style.width = width + "px";
-  // canvas.style.height = height + "px";
-  // document.body.appendChild(canvas);
-  
-  // html
+  console.log('Rendering...');
   const [width, height] = [800, 800];
-  const div = document.createElement('div');
-  div.style.position = 'relative';
-  div.style.background = '#f8f8f8f';
-  div.style.width = width + "px";
-  div.style.height = height + "px";
-  document.body.appendChild(div);
-  
+
   // range
   const xRange = [
     _.min(xys.map(xy => xy[0])),
@@ -186,20 +179,43 @@ async function start(inputs) {
   console.log('plots.length', plots.length);
   
   
-  // plain images
+  // render to canvas
+  // renderAsHTML(plots);
+
+  // facets
+  const facetsEl = document.createElement('div');
+  document.body.appendChild(facetsEl);
+  facets(facetsEl, plots);
+}
+
+
+function renderAsHTML(plots) {
+  const [width, height] = [800, 800];
+  
+  // html
+  const div = document.createElement('div');
+  div.style.position = 'relative';
+  div.style.background = '#f8f8f8f';
+  div.style.width = width + "px";
+  div.style.height = height + "px";
+  document.body.appendChild(div);
+  
+  // canvas
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+  document.body.appendChild(canvas);
+  
+  // // plain images
   plots.forEach(plot => {
     const {x, y, item} = plot;
     const {uri, prediction} = item;
     addImage(uri, div, x, y, 32, 32, prediction);
   });
-  
-  
-  // facets
-  const facetsEl = document.createElement('div');
-  document.body.appendChild(facetsEl);
-  facets(div, plots);
 }
-
 
 function addImage(uri, el, x, y, width, height, prediction) {
   const img = document.createElement('img');
