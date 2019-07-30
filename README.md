@@ -12,3 +12,5 @@ the real idea here is to use this with TM models.  show the transformation that 
 eg, https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html but for the TM model you made, so you can see how your model's layer warps the mobilenet space
 
 but need to shake the tires on umap a bit more first
+
+## tiny imagenet
