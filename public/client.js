@@ -240,7 +240,7 @@ async function facets(targetEl, plots) {
   // flatten data, round numbers for UX
   const facetsData = plots.map(function(plot, i) {
     const {x, y, item} = plot;
-    const classification = _.maxBy(item.prediction, 'probability').className;
+    const {className, probability} = _.maxBy(item.prediction, 'probability');
     const labels = item.prediction.reduce((map, p) => {
       return {
         ...map,
@@ -251,7 +251,8 @@ async function facets(targetEl, plots) {
       i,
       x,
       y,
-      classification,
+      classification: className,
+      classificationScore: probability,
       hashedURI: hash64(item.uri)
     };
   });
