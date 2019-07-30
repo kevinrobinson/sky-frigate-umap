@@ -120,6 +120,14 @@ async function start(inputs) {
       const {el, uri} = input;
       const embedding = (await model.infer(el)).arraySync()[0];
       const prediction = await model.classify(el);
+      
+      const div = document.createElement('div');
+      const pre = document.createElement('pre');
+      pre.innerHTML = JSON.stringify(prediction[0]);
+      div.appendChild(el);
+      div.appendChild(pre);
+      document.body.append(div);
+      
       return {i, uri, embedding, prediction};
     }
     catch (err) {
